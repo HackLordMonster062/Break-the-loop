@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -5,16 +6,18 @@ public class Loop : MonoBehaviour {
     [SerializeField] Tile[] tiles;
     [SerializeField] float lightTime;
     [SerializeField] int startLevel;
+    [SerializeField] int startIndex;
+
+    public event Action<Loop> OnBreak;
 
     int _currTile;
     int _currLevel;
 	
     void Start() {
-        _currTile = 0;
+        _currTile = startIndex;
         _currLevel = startLevel;
 
         for (int i = 0; i < tiles.Length; i++) {
-            tiles[i].SetIndex(i);
             tiles[i].TurnOff();
 
             tiles[i].OnClick += HandleClick;
@@ -23,8 +26,8 @@ public class Loop : MonoBehaviour {
         StartCoroutine(LightLoop());
     }
 
-    void HandleClick(int index) {
-        if (_currLevel > 0 && index == _currTile) {
+    void HandleClick(Tile tile) {
+        if (_currLevel > 0 && tile == tiles[_currTile]) {
             _currLevel--;
         }
     }
@@ -42,6 +45,6 @@ public class Loop : MonoBehaviour {
 
 		tiles[_currTile].TurnOff();
 
-        // Notify on loop break
+        OnBreak?.Invoke(this);
 	}
 }

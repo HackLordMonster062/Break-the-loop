@@ -5,11 +5,9 @@ using UnityEngine;
 public class Tile : MonoBehaviour {
 	[SerializeField] bool isClickable;
 
-	public event Action<int> OnClick;
+	public event Action<Tile> OnClick;
 
 	SpriteRenderer _renderer;
-
-	int _index;
 	
     void Awake() {
         _renderer = GetComponent<SpriteRenderer>();
@@ -18,15 +16,14 @@ public class Tile : MonoBehaviour {
 	private void OnMouseDown() {
 		if (!isClickable) return;
 
-		OnClick?.Invoke(_index);
-	}
+		OnClick?.Invoke(this);
 
-	public void SetIndex(int index) {
-		_index = index;
 	}
 
 	public void TurnOn(int level) {
 		_renderer.color = FlashColors.instance.onColors[level - 1];
+
+		if (!isClickable) _renderer.color /= 2;
     }
 
     public void TurnOff() {
