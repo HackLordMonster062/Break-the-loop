@@ -18,6 +18,7 @@ public class Tile : MonoBehaviour {
 
 		OnClick?.Invoke(this);
 
+		GameManager.instance.RegisterClick();
 	}
 
 	public void TurnOn(int level) {
