@@ -3,20 +3,18 @@ using System.Linq;
 using UnityEngine;
 
 public class GameManager : Singleton<GameManager> {
-    [SerializeField] int startClicks;
-
     List<Loop> _loops;
 
     public int LoopCount { get { return _loops.Count; } }
     public int ClicksLeft { get; private set; }
 
 	private void Start() {
-        Setup();
-
-		ClicksLeft = startClicks;
+        Setup(LevelManager.instance.GetCurrLevelInfo());
 	}
 
-	void Setup() {
+	void Setup(LevelInfo info) {
+        ClicksLeft = info.availableClicks;
+
         _loops = FindObjectsByType<Loop>(FindObjectsSortMode.None).ToList();
 
 		foreach (Loop loop in _loops) {
