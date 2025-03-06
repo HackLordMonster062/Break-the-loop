@@ -29,7 +29,8 @@ public class Loop : MonoBehaviour {
     void HandleClick(Tile tile) {
         if (_currLevel > 0 && tile == tiles[_currTile]) {
             _currLevel--;
-        }
+			AudioManager.instance.PlaySound("Laser");
+		}
     }
 
     IEnumerator LightLoop() {
@@ -44,7 +45,8 @@ public class Loop : MonoBehaviour {
 		}
 
 		tiles[_currTile].TurnOff();
+		AudioManager.instance.PlaySound("Laser");
 
-        OnBreak?.Invoke(this);
+		OnBreak?.Invoke(this);
 	}
 }
