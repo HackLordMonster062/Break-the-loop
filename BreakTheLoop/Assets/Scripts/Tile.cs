@@ -13,12 +13,18 @@ public class Tile : MonoBehaviour {
         _renderer = GetComponent<SpriteRenderer>();
     }
 
+	private void Start() {
+		GameManager.instance.OnCycle += () => isClickable = true;
+	}
+
 	private void OnMouseDown() {
-		if (!isClickable) return;
+		if (!isClickable || GameManager.instance.CurrState != GameState.Playing) return;
 
 		OnClick?.Invoke(this);
 
 		GameManager.instance.RegisterClick();
+
+		isClickable = false;
 	}
 
 	public void TurnOn(int level) {

@@ -23,7 +23,8 @@ public class Loop : MonoBehaviour {
             tiles[i].OnClick += HandleClick;
         }
 
-        StartCoroutine(LightLoop());
+        Coroutine loopCoroutine = StartCoroutine(LightLoop());
+        
     }
 
     void HandleClick(Tile tile) {
@@ -37,7 +38,7 @@ public class Loop : MonoBehaviour {
         while (_currLevel > 0) {
             tiles[_currTile].TurnOn(_currLevel);
 
-            yield return new WaitForSeconds(lightTime);
+            yield return WaitForSecondsWithPause(lightTime);
 
 			tiles[_currTile].TurnOff();
 
@@ -48,5 +49,17 @@ public class Loop : MonoBehaviour {
 		AudioManager.instance.PlaySound("Laser");
 
 		OnBreak?.Invoke(this);
+	}
+
+	IEnumerator WaitForSecondsWithPause(float time) {
+		float startTime = Time.time;
+		float remainingWaitTime = time;
+
+		while (remainingWaitTime > 0) {
+			if (GameManager.instance.CurrState == GameState.Playing) {
+				remainingWaitTime = time - (Time.time - startTime);
+			}
+			yield return null;
+		}
 	}
 }

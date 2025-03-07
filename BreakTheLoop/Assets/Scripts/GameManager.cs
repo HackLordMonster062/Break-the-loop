@@ -1,14 +1,20 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Experimental.GlobalIllumination;
 
 public class GameManager : Singleton<GameManager> {
-    List<Loop> _loops;
+	[SerializeField] float lightTime;
+
+	List<Loop> _loops;
 
     public event Action<int> OnClicksChanged;
     public event Action<GameState> OnBeforeStateChange;
     public event Action<GameState> OnAfterStateChange;
+    public event Action OnCycle;
 
     public int LoopCount { get { return _loops.Count; } }
     public int ClicksLeft { get; private set; }
@@ -29,13 +35,15 @@ public class GameManager : Singleton<GameManager> {
             loop.OnBreak += (Loop loop) => {
                 _loops.Remove(loop);
 
-                if (_loops.Count <= 0 ) {
-                    Win();
-                }
-            };
+				if (_loops.Count <= 0) {
+					Win();
+					return;
+				}
+			};
         }
 
         ChangeState(GameState.Connecting);
+        ChangeState(GameState.Playing);
 	}
 
 	public void ChangeState(GameState state) {
@@ -52,6 +60,7 @@ public class GameManager : Singleton<GameManager> {
 				break;
             case GameState.Playing:
 				AudioManager.instance.ToggleMusic();
+                StartCoroutine(LightLoop());
 				break;
             case GameState.Win:
                 break;
@@ -74,12 +83,34 @@ public class GameManager : Singleton<GameManager> {
 
     public void RegisterClick() {
         ClicksLeft--;
-        OnClicksChanged?.Invoke(ClicksLeft);
 
-        if (ClicksLeft <= 0) {
+		if (ClicksLeft < 0) {
             Lose();
+            return;
         }
-    }
+
+		OnClicksChanged?.Invoke(ClicksLeft);
+	}
+
+    IEnumerator LightLoop() {
+        while (CurrState != GameState.Win || CurrState != GameState.Lose) {
+            OnCycle?.Invoke();
+
+			yield return WaitForSecondsWithPause(lightTime);
+		}
+	}
+
+	IEnumerator WaitForSecondsWithPause(float time) {
+		float startTime = Time.time;
+		float remainingWaitTime = time;
+
+		while (remainingWaitTime > 0) {
+			if (CurrState == GameState.Playing) {
+				remainingWaitTime = time - (Time.time - startTime);
+			}
+			yield return null;
+		}
+	}
 }
 
 public enum GameState {
