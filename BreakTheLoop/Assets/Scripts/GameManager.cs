@@ -7,19 +7,21 @@ public class GameManager : Singleton<GameManager> {
     List<Loop> _loops;
 
     public event Action<int> OnClicksChanged;
-    public event Action OnWin;
-    public event Action OnLose;
+    public event Action<GameState> OnBeforeStateChange;
+    public event Action<GameState> OnAfterStateChange;
 
     public int LoopCount { get { return _loops.Count; } }
     public int ClicksLeft { get; private set; }
+    public GameState CurrState { get; private set; } = GameState.Default;
 
 	private void Start() {
-        Setup(LevelManager.instance.GetCurrLevelInfo());
+        ChangeState(GameState.Initiating);
 	}
 
 	void Setup(LevelInfo info) {
+        print("Setting up");
+
         ClicksLeft = info.availableClicks;
-		OnClicksChanged?.Invoke(ClicksLeft);
 
 		_loops = FindObjectsByType<Loop>(FindObjectsSortMode.None).ToList();
 
@@ -33,19 +35,41 @@ public class GameManager : Singleton<GameManager> {
             };
         }
 
-        AudioManager.instance.ToggleMusic();
+        ChangeState(GameState.Connecting);
 	}
 
-	public void Update() {
-        
+	public void ChangeState(GameState state) {
+        CurrState = state;
+        OnBeforeStateChange?.Invoke(CurrState);
+
+        switch (state) {
+            case GameState.Initiating:
+				LevelManager.instance.LoadLevel(0);
+				LevelManager.instance.OnLevelLoaded += Setup;
+				break;
+            case GameState.Connecting:
+				OnClicksChanged?.Invoke(ClicksLeft);
+				break;
+            case GameState.Playing:
+				AudioManager.instance.ToggleMusic();
+				break;
+            case GameState.Win:
+                break;
+            case GameState.Lose:
+                break;
+            default:
+                break;
+        }
+
+        OnAfterStateChange?.Invoke(CurrState);
     }
 
     void Win() {
-        OnWin?.Invoke();
+        ChangeState(GameState.Win);
     }
 
     void Lose() {
-        OnLose?.Invoke();
+        ChangeState(GameState.Lose);
     }
 
     public void RegisterClick() {
@@ -56,4 +80,14 @@ public class GameManager : Singleton<GameManager> {
             Lose();
         }
     }
+}
+
+public enum GameState {
+    Default,
+    Initiating,
+    Connecting,
+    Playing,
+    Lose,
+    Win,
+    Paused
 }
