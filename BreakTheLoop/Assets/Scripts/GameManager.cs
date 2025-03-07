@@ -25,8 +25,6 @@ public class GameManager : Singleton<GameManager> {
 	}
 
 	void Setup(LevelInfo info) {
-        print("Setting up");
-
         ClicksLeft = info.availableClicks;
 
 		_loops = FindObjectsByType<Loop>(FindObjectsSortMode.None).ToList();
