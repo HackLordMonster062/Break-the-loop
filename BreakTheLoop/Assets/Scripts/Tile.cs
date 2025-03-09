@@ -7,33 +7,43 @@ public class Tile : MonoBehaviour {
 
 	public event Action<Tile> OnClick;
 
+	public bool IsEnabled { get; private set; }
+
 	SpriteRenderer _renderer;
 	
     void Awake() {
-        _renderer = GetComponent<SpriteRenderer>();
+		IsEnabled = isClickable;
+
+		_renderer = GetComponent<SpriteRenderer>();
     }
 
 	private void Start() {
-		GameManager.instance.OnCycle += () => isClickable = true;
+		GameManager.instance.OnCycleEnd += () => {
+			IsEnabled = isClickable;
+		};
 	}
 
 	private void OnMouseDown() {
-		if (!isClickable || GameManager.instance.CurrState != GameState.Playing) return;
+		if (!IsEnabled || GameManager.instance.CurrState != GameState.Playing) return;
 
 		OnClick?.Invoke(this);
 
 		GameManager.instance.RegisterClick();
 
-		isClickable = false;
+		IsEnabled = false;
 	}
 
 	public void TurnOn(int level) {
-		_renderer.color = FlashColors.instance.onColors[level - 1];
-
-		if (!isClickable) _renderer.color /= 2;
+		SetColor(FlashColors.instance.onColors[level - 1]);
     }
 
     public void TurnOff() {
-		_renderer.color = FlashColors.instance.offColor;
+		SetColor(FlashColors.instance.offColor);
     }
+
+	private void SetColor(Color color) {
+		if (!IsEnabled) color *= FlashColors.instance.disabledColor;
+
+		_renderer.color = color;
+	}
 }

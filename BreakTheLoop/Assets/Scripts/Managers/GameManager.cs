@@ -14,7 +14,8 @@ public class GameManager : Singleton<GameManager> {
     public event Action<int> OnClicksChanged;
     public event Action<GameState> OnBeforeStateChange;
     public event Action<GameState> OnAfterStateChange;
-    public event Action OnCycle;
+    public event Action OnCycleStart;
+    public event Action OnCycleEnd;
 
     public int LoopCount { get { return _loops.Count; } }
     public int ClicksLeft { get; private set; }
@@ -53,6 +54,7 @@ public class GameManager : Singleton<GameManager> {
 
         switch (state) {
             case GameState.Initiating:
+                StopAllCoroutines();
 				break;
             case GameState.Connecting:
 				OnClicksChanged?.Invoke(ClicksLeft);
@@ -65,6 +67,7 @@ public class GameManager : Singleton<GameManager> {
                 break;
             case GameState.Lose:
                 break;
+                
             default:
                 break;
         }
@@ -84,7 +87,6 @@ public class GameManager : Singleton<GameManager> {
         ClicksLeft--;
 
 		if (ClicksLeft < 0) {
-            Lose();
             return;
         }
 
@@ -93,9 +95,15 @@ public class GameManager : Singleton<GameManager> {
 
     IEnumerator LightLoop() {
         while (CurrState != GameState.Win || CurrState != GameState.Lose) {
-            OnCycle?.Invoke();
+            OnCycleStart?.Invoke();
+
+            if (ClicksLeft <= 0 && CurrState == GameState.Playing) {
+                Lose();
+            }
 
 			yield return WaitForSecondsWithPause(lightTime);
+
+			OnCycleEnd?.Invoke();
 		}
 	}
 

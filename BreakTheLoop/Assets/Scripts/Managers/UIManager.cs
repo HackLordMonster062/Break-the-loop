@@ -21,7 +21,9 @@ public class UIManager : Singleton<UIManager> {
 	}
 
 	void InitiateUI() {
-		_canvas = Instantiate(canvasPrefab);
+		_canvas = FindAnyObjectByType<Canvas>()?.transform;
+
+		if (_canvas == null ) _canvas = Instantiate(canvasPrefab);
 
 		_hudPanel = Instantiate(hudPanel, _canvas);
 
