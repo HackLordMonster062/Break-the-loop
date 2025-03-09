@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3b97ff3b508e7cb4ab3d53252c2345eb, type: 3}
-  m_Name: Level 1
+  m_Name: Level 5
   m_EditorClassIdentifier: 
-  sceneName: Level 1
+  sceneName: Level 5
   availableClicks: 2

@@ -1,10 +1,10 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class Loop : MonoBehaviour {
-    [SerializeField] Tile[] tiles;
-    [SerializeField] float lightTime;
+    [SerializeField] List<Tile> tiles;
     [SerializeField] int startLevel;
     [SerializeField] int startIndex;
 
@@ -12,23 +12,29 @@ public class Loop : MonoBehaviour {
 
     int _currTile;
     int _currLevel;
-	
-    void Start() {
-        _currTile = startIndex;
-        _currLevel = startLevel;
 
-        for (int i = 0; i < tiles.Length; i++) {
-			tiles[i].TurnOff();
+	private void Start() {
+		GameManager.instance.OnAfterStateChange += Setup;
+
+		_currTile = startIndex;
+		_currLevel = startLevel;
+
+		for (int i = 0; i < tiles.Count; i++) {
 			tiles[i].OnClick += HandleClick;
-        }
+		}
+
+		GameManager.instance.OnCycleStart += Cycle;
+	}
+
+	void Setup(GameState state) {
+		if (state != GameState.Initiating) return;
 
 		tiles[_currTile].TurnOn(_currLevel);
-
-		GameManager.instance.OnCycleEnd += Cycle;
-    }
+	}
 
 	private void OnDestroy() {
-		GameManager.instance.OnCycleEnd -= Cycle;
+		GameManager.instance.OnCycleStart -= Cycle;
+		GameManager.instance.OnAfterStateChange -= Setup;
 	}
 
 	void HandleClick(Tile tile) {
@@ -49,7 +55,7 @@ public class Loop : MonoBehaviour {
 
 		tiles[_currTile].TurnOff();
 
-		_currTile = (_currTile + 1) % tiles.Length;
+		_currTile = (_currTile + 1) % tiles.Count;
 
 		tiles[_currTile].TurnOn(_currLevel);
 	}

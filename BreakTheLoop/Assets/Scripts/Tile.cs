@@ -18,9 +18,23 @@ public class Tile : MonoBehaviour {
     }
 
 	private void Start() {
-		GameManager.instance.OnCycleEnd += () => {
-			IsEnabled = isClickable;
-		};
+		GameManager.instance.OnCycleEnd += Cycle;
+		GameManager.instance.OnBeforeStateChange += Setup;
+	}
+
+	private void OnDestroy() {
+		GameManager.instance.OnCycleEnd -= Cycle;
+		GameManager.instance.OnBeforeStateChange -= Setup;
+	}
+
+	void Cycle() {
+		IsEnabled = isClickable;
+	}
+
+	void Setup(GameState state) {
+		if (state == GameState.Initiating) {
+			TurnOff();
+		}
 	}
 
 	private void OnMouseDown() {

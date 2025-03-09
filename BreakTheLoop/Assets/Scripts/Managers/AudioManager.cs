@@ -12,7 +12,6 @@ public class AudioManager : Singleton<AudioManager> {
 		InitializeSFXDictionary();
 
 		musicSource.Play();
-		ToggleMusic(false);
 	}
 
 	private void InitializeSFXDictionary() {

@@ -22,11 +22,12 @@ public class GameManager : Singleton<GameManager> {
     public GameState CurrState { get; private set; } = GameState.Default;
 
 	private void Start() {
-		LevelManager.instance.LoadLevel(0);
-		LevelManager.instance.OnLevelLoaded += Setup;
+		LevelManager.instance.OnLevelLoaded += (LevelInfo info) => StartCoroutine(Setup(info));
 	}
 
-	void Setup(LevelInfo info) {
+	IEnumerator Setup(LevelInfo info) {
+        yield return null;
+
         ChangeState(GameState.Initiating);
 
         ClicksLeft = info.availableClicks;
