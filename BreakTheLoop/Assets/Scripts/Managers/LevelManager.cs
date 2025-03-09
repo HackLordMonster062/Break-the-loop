@@ -3,23 +3,30 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : Singleton<LevelManager> {
-    [SerializeField] LevelInfo[] levels;
+    [SerializeField] LevelsHolder holder;
 
     public event Action<LevelInfo> OnLevelLoaded;
 
-    int _currLevel;
+	LevelInfo[] _levels;
 
-    public LevelInfo LoadLevel(int level) {
+	int _currLevel;
+
+	protected override void Awake() {
+        base.Awake();
+        _levels = holder.levels;
+	}
+
+	public LevelInfo LoadLevel(int level) {
         _currLevel = level;
 
-        SceneManager.LoadSceneAsync(levels[_currLevel].sceneName);
+        SceneManager.LoadSceneAsync(_levels[_currLevel].sceneName);
         SceneManager.sceneLoaded += NotifyLevelLoad;
 
         return GetCurrLevelInfo();
     }
 
     private void NotifyLevelLoad(Scene scene, LoadSceneMode mode) {
-        OnLevelLoaded?.Invoke(levels[_currLevel]);
+        OnLevelLoaded?.Invoke(_levels[_currLevel]);
 
         SceneManager.sceneLoaded -= NotifyLevelLoad;
     }
@@ -33,10 +40,10 @@ public class LevelManager : Singleton<LevelManager> {
     }
 
     public LevelInfo GetLevelInfo(int level) {
-        return levels[level];
+        return _levels[level];
     }
 
     public LevelInfo GetCurrLevelInfo() {
-        return levels[_currLevel];
+        return _levels[_currLevel];
     }
 }
