@@ -21,10 +21,13 @@ public class GameManager : Singleton<GameManager> {
     public GameState CurrState { get; private set; } = GameState.Default;
 
 	private void Start() {
-        ChangeState(GameState.Initiating);
+		LevelManager.instance.LoadLevel(0);
+		LevelManager.instance.OnLevelLoaded += Setup;
 	}
 
 	void Setup(LevelInfo info) {
+        ChangeState(GameState.Initiating);
+
         ClicksLeft = info.availableClicks;
 
 		_loops = FindObjectsByType<Loop>(FindObjectsSortMode.None).ToList();
@@ -50,8 +53,6 @@ public class GameManager : Singleton<GameManager> {
 
         switch (state) {
             case GameState.Initiating:
-				LevelManager.instance.LoadLevel(0);
-				LevelManager.instance.OnLevelLoaded += Setup;
 				break;
             case GameState.Connecting:
 				OnClicksChanged?.Invoke(ClicksLeft);

@@ -10,6 +10,9 @@ public class AudioManager : Singleton<AudioManager> {
 
 	private void Start() {
 		InitializeSFXDictionary();
+
+		musicSource.Play();
+		ToggleMusic(false);
 	}
 
 	private void InitializeSFXDictionary() {
@@ -27,7 +30,7 @@ public class AudioManager : Singleton<AudioManager> {
 
 	public void ToggleMusic(bool play = true) {
 		if (play)
-			musicSource.Play();
+			musicSource.UnPause();
 		else
 			musicSource.Pause();
 	}

@@ -6,11 +6,11 @@ public class WinScreen : MonoBehaviour {
 	[SerializeField] ParticleSystem[] confettiSystems;
 
     public void Restart() {
-
+		LevelManager.instance.ReloadLevel();
 	}
 
 	public void NextLevel() {
-
+		LevelManager.instance.LoadNextLevel();
 	}
 
 	public void StartConfetti() {
