@@ -41,6 +41,8 @@ public class Loop : MonoBehaviour {
         if (_currLevel > 0 && tile == tiles[_currTile]) {
             _currLevel--;
 			AudioManager.instance.PlaySound("Laser");
+
+			if (_currLevel > 0) _currTile = (_currTile + tiles.Count - 1) % tiles.Count;
 		}
     }
 
