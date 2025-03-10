@@ -8,8 +8,11 @@ using UnityEngine.Experimental.GlobalIllumination;
 
 public class GameManager : Singleton<GameManager> {
 	[SerializeField] float lightTime;
+#if UNITY_EDITOR
+    [SerializeField] int level;
+#endif
 
-	List<Loop> _loops;
+    List<Loop> _loops;
 
     public event Action<int> OnClicksChanged;
     public event Action<GameState> OnBeforeStateChange;
@@ -22,13 +25,22 @@ public class GameManager : Singleton<GameManager> {
     public GameState CurrState { get; private set; } = GameState.Default;
 
 	private void Start() {
-		LevelManager.instance.OnLevelLoaded += (LevelInfo info) => StartCoroutine(Setup(info));
+#if UNITY_EDITOR
+        if (level >= 0) LevelManager.instance.LoadLevel(level);
+#endif 
+
+        LevelManager.instance.OnLevelLoaded += (LevelInfo info) => StartCoroutine(Setup(info));
 	}
 
 	IEnumerator Setup(LevelInfo info) {
         yield return null;
 
         ChangeState(GameState.Initiating);
+
+        if (info.availableClicks < 0) {
+            ChangeState(GameState.Menu);
+            yield break;
+        }
 
         ClicksLeft = info.availableClicks;
 
@@ -37,6 +49,7 @@ public class GameManager : Singleton<GameManager> {
 		foreach (Loop loop in _loops) {
             loop.OnBreak += (Loop loop) => {
                 _loops.Remove(loop);
+                Destroy(loop);
 
 				if (_loops.Count <= 0) {
 					Win();
@@ -95,7 +108,7 @@ public class GameManager : Singleton<GameManager> {
 	}
 
     IEnumerator LightLoop() {
-        while (CurrState != GameState.Win || CurrState != GameState.Lose) {
+        while (CurrState != GameState.Win && CurrState != GameState.Lose) {
             OnCycleStart?.Invoke();
 
             if (ClicksLeft <= 0 && CurrState == GameState.Playing) {
@@ -128,5 +141,6 @@ public enum GameState {
     Playing,
     Lose,
     Win,
+    Menu,
     Paused
 }

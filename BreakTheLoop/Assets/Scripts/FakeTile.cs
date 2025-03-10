@@ -4,8 +4,17 @@ using UnityEngine;
 public class FakeTile : MonoBehaviour {
 	SpriteRenderer _renderer;
 
+	public event Action<FakeTile> OnClick;
+
 	void Awake() {
 		_renderer = GetComponent<SpriteRenderer>();
+	}
+
+	private void OnMouseDown() {
+		OnClick?.Invoke(this);
+
+
+		TurnOff();
 	}
 
 	public void TurnOn(int level) {

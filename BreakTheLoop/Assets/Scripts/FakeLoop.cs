@@ -14,7 +14,21 @@ public class FakeLoop : MonoBehaviour {
 	private void Start() {
 		_currTile = startIndex;
 
+		for (int i = 0; i < tiles.Count; i++) {
+			tiles[i].OnClick += HandleClick;
+		}
+
 		StartCoroutine(LightLoop());
+	}
+
+	void HandleClick(FakeTile tile) {
+		if (tile == tiles[_currTile]) {
+			Destroy(gameObject);
+
+			for (int i = 0; i < tiles.Count; i++) {
+				tiles[i].OnClick -= HandleClick;
+			}
+		}
 	}
 
 	IEnumerator LightLoop() {
